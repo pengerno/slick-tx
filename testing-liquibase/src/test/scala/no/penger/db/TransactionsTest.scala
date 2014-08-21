@@ -94,7 +94,7 @@ abstract class TestUploadServiceComponent extends FunSuite with UploadServiceCom
 
     val id = UploadId(UUID.randomUUID())
 
-    assert(Right() ===
+    assert(Right(()) ===
       uploadService.register(Upload(id, "filename", Array.ofDim(42)))
     )
 
