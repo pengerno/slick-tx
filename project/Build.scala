@@ -36,9 +36,9 @@ object Build extends sbt.Build {
   )
 
   lazy val transactionsSetup = project("setup", transactions)(
-    "com.typesafe.scala-logging"  %% "scala-logging-slf4j"    % "2.1.2",
     "org.apache.tomcat"           %  "tomcat-jdbc"            % "7.0.39",
-    "com.github.tminglei"         %% "slick-pg_joda-time"     % "0.6.2"
+    "com.github.tminglei"         %% "slick-pg_joda-time"     % "0.6.2",
+    typesafeLogging
   )
 
   lazy val transactionsTesting = project("testing", transactions)(
@@ -47,8 +47,11 @@ object Build extends sbt.Build {
   )
 
   lazy val transactionsTestingLiquibase = project("testing-liquibase", transactionsTesting)(
+    typesafeLogging,
     "org.liquibase" % "liquibase-core" % "3.1.1"
   )
+
+  val typesafeLogging = "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2"
 
   lazy val root = Project(s"$basename-parent", file("."), settings = buildSettings)
     .aggregate(transactions, transactionsSetup, transactionsTesting, transactionsTestingLiquibase)
