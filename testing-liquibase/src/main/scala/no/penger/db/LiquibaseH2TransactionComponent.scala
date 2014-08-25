@@ -1,11 +1,6 @@
 package no.penger.db
 
-import java.sql.Connection
 import java.util.UUID
-
-import liquibase.Liquibase
-import liquibase.database.jvm.JdbcConnection
-import liquibase.resource.ClassLoaderResourceAccessor
 
 trait LiquibaseH2TransactionComponent extends H2TransactionComponent {
   import profile.simple._
@@ -26,14 +21,5 @@ trait LiquibaseH2TransactionComponent extends H2TransactionComponent {
       Schema.update(s.conn, liquibaseChangelog, liquibaseTags)
     }
     db
-  }
-
-  object Schema {
-    liquibase.logging.LogFactory.getInstance().setDefaultLoggingLevel("warning")
-
-    def update(connection:Connection, changelog: String, tags: Seq[String]){
-      val liquibase = new Liquibase(changelog, new ClassLoaderResourceAccessor(), new JdbcConnection(connection))
-      liquibase.update(tags.mkString(","))
-    }
   }
 }
