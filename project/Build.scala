@@ -43,8 +43,7 @@ object Build extends sbt.Build {
 
   lazy val transactionsTesting = project("testing", transactions)(
     "org.scalatest" %% "scalatest"    % "2.1.7",
-    "com.h2database" % "h2"           % "1.3.175",
-    "org.slf4j"      % "slf4j-simple" % "1.7.7"
+    "com.h2database" % "h2"           % "1.3.175"
   )
 
   lazy val transactionsTestingLiquibase = project("testing-liquibase", transactionsTesting)(
