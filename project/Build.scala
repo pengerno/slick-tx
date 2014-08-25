@@ -35,9 +35,16 @@ object Build extends sbt.Build {
     "com.typesafe.slick" %% "slick" % "2.1.0"
   )
 
+  lazy val transactionsSetup = project("setup", transactions)(
+    "com.typesafe.scala-logging"  %% "scala-logging-slf4j"    % "2.1.2",
+    "org.apache.tomcat"           %  "tomcat-jdbc"            % "7.0.39",
+    "com.github.tminglei"         %% "slick-pg_joda-time"     % "0.6.2"
+  )
+
   lazy val transactionsTesting = project("testing", transactions)(
-    "org.scalatest" %% "scalatest" % "2.1.7",
-    "com.h2database" % "h2"        % "1.3.175"
+    "org.scalatest" %% "scalatest"    % "2.1.7",
+    "com.h2database" % "h2"           % "1.3.175",
+    "org.slf4j"      % "slf4j-simple" % "1.7.7"
   )
 
   lazy val transactionsTestingLiquibase = project("testing-liquibase", transactionsTesting)(
@@ -45,5 +52,5 @@ object Build extends sbt.Build {
   )
 
   lazy val root = Project(s"$basename-parent", file("."), settings = buildSettings)
-    .aggregate(transactions, transactionsTesting, transactionsTestingLiquibase)
+    .aggregate(transactions, transactionsSetup, transactionsTesting, transactionsTestingLiquibase)
 }
