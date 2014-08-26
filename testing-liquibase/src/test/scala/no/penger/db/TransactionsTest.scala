@@ -4,6 +4,7 @@ import java.util.UUID
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.scalatest.FunSuite
+import org.scalautils.TypeCheckedTripleEquals
 
 import scala.collection.mutable
 
@@ -66,40 +67,62 @@ trait UploadRepoDbComponent extends UploadRepoComponent with SlickTransactionAwa
 
 /* this service has a notion of operating on transactions, but slick is abstracted away */
 trait UploadServiceComponent extends UploadRepoComponent with TransactionBoundary {
+  sealed trait Error
+  case object EmptyContent extends Error
+  case object TooBigContent extends Error
+  val MAX_SIZE = 1337
+
   object uploadService {
-    def register(upload: Upload): Either[String, Unit] =
-      /* some random logic we would like to test */
-      if (upload.contents.isEmpty) 
-        Left("Contents can not be empty")
-      else if (upload.contents.length > 1337) 
-        Left("Contents is too big")
-      else transaction.readOnly(implicit tx => Right(uploadRepo.register(upload)))
+    def register(filename: String, contents: Array[Byte]): Either[Error, UploadId] =
+      contents.length match {
+        case 0                 => Left(EmptyContent)
+        case n if n > MAX_SIZE => Left(TooBigContent)
+        case _                 =>
+          val id     = UploadId(UUID.randomUUID())
+          val upload = Upload(id, filename, contents)
+
+          transaction.readWrite(implicit tx => uploadRepo.register(upload))
+          Right(id)
+      }
 
     def unregister(id: UploadId): Boolean =
-      transaction.readOnly(implicit tx => uploadRepo unregister id)
+      transaction.readWrite(implicit tx => uploadRepo unregister id)
 
     def lookup(id: UploadId): Option[Upload] =
       transaction.readOnly(implicit tx => uploadRepo lookup id)
   }
 }
 
-abstract class TestUploadServiceComponent extends FunSuite with UploadServiceComponent {
-  test("test upload service") {
-    assert(Left("Contents can not be empty") ===
-      uploadService.register(Upload(UploadId(UUID.randomUUID()), "filename", Array.ofDim(0)))
-    )
+abstract class TestUploadServiceComponent extends FunSuite with UploadServiceComponent with TypeCheckedTripleEquals {
+  val filename = "filename"
 
-    assert(Left("Contents is too big") ===
-      uploadService.register(Upload(UploadId(UUID.randomUUID()), "filename", Array.ofDim(1338)))
-    )
+  test("empty"){
+    assert(Left(EmptyContent) === uploadService.register(filename, Array.ofDim(0)))
+  }
+  test("too big") {
+    assert(Left(TooBigContent) === uploadService.register(filename, Array.ofDim(MAX_SIZE + 1)))
+  }
+  test("success case"){
+    val contents = Array.ofDim[Byte](42)
+    uploadService.register(filename, contents) match {
+      case Left(e)   => fail(s"didnt expect error $e")
+      case Right(id) => uploadService.lookup(id) match {
+        case Some(found) =>
+          assert(contents === found.contents)
+          assert(filename === found.filename)
+        case _           => fail(s"couldnt lookup registered upload $id")
+      }
+    }
+  }
+  test("unregister"){
+    val nonExisting = UploadId(UUID.randomUUID())
+    assert(!uploadService.unregister(nonExisting), "unregister should have returned false")
 
-    val id = UploadId(UUID.randomUUID())
-
-    assert(Right(()) ===
-      uploadService.register(Upload(id, "filename", Array.ofDim(42)))
-    )
-
-    assert(true === uploadService.lookup(id).isDefined)
+    uploadService.register(filename, Array.ofDim(42)) match {
+      case Left(e)   => fail(s"didnt expect error $e")
+      case Right(id) => assert(uploadService.unregister(id), "unregister should have returned true")
+                        assert(uploadService.lookup(id).isEmpty, s"should not be able to lookup unregistered id $id")
+    }
   }
 }
 
