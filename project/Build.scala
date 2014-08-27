@@ -4,7 +4,7 @@ import sbt._
 
 object Build extends sbt.Build {
 
-  val basename = "slick-transactions"
+  val basename = "tx"
 
   override def settings = super.settings ++ Seq(
     scalacOptions      := Seq("-unchecked", "-deprecation", "-encoding", "UTF-8", "-feature"),
@@ -31,22 +31,26 @@ object Build extends sbt.Build {
       settings     = buildSettings ++ Seq(libraryDependencies ++= deps)
     )
 
-  lazy val transactions = project("core")(
+  lazy val transactionsAbstract = project("abstract")()
+
+  lazy val transactions = project("core", transactionsAbstract)(
     "com.typesafe.slick" %% "slick" % "2.1.0"
   )
 
   lazy val transactionsSetup = project("setup", transactions)(
-    "org.apache.tomcat"           %  "tomcat-jdbc"            % "7.0.39",
+    "org.apache.tomcat"           %  "tomcat-jdbc"            % "7.0.39", //todo: upgrade!
     "com.github.tminglei"         %% "slick-pg_joda-time"     % "0.6.2",
     typesafeLogging
   )
 
-  lazy val transactionsTesting = project("testing", transactions)(
+  lazy val transactionsTesting = project("testing", transactions)()
+
+  lazy val transactionsTestingH2 = project("testing-h2", transactionsTesting)(
     "org.scalatest" %% "scalatest"    % "2.1.7",
     "com.h2database" % "h2"           % "1.3.175"
   )
 
-  lazy val transactionsTestingLiquibase = project("testing-liquibase", transactionsTesting)(
+  lazy val transactionsTestingLiquibase = project("testing-liquibase", transactionsTestingH2)(
     typesafeLogging,
     "org.liquibase" % "liquibase-core" % "3.1.1"
   )
@@ -54,5 +58,6 @@ object Build extends sbt.Build {
   val typesafeLogging = "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2"
 
   lazy val root = Project(s"$basename-parent", file("."), settings = buildSettings)
-    .aggregate(transactions, transactionsSetup, transactionsTesting, transactionsTestingLiquibase)
+    .aggregate(transactionsAbstract, transactions, transactionsSetup,
+      transactionsTesting, transactionsTestingH2, transactionsTestingLiquibase)
 }
