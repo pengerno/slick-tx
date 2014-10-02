@@ -2,7 +2,6 @@ package no.penger.db
 
 import java.util.UUID
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.scalatest.FunSuite
 import org.scalautils.TypeCheckedTripleEquals
 
@@ -135,7 +134,6 @@ class TestUploadServiceDbComponent
   extends TestUploadServiceComponent
   with UploadRepoDbComponent
   with LiquibaseH2TransactionComponent
-  with LazyLogging
 
 class TestUploadServiceDummyComponent
   extends TestUploadServiceComponent

@@ -34,7 +34,7 @@ object Build extends sbt.Build {
   object deps{
     val slick      = "com.typesafe.slick"  %% "slick"              % "2.1.0"
     val tomcatJdbc = "org.apache.tomcat"    % "tomcat-jdbc"        % "7.0.39"  //todo: upgrade!
-    val logging     = "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2"
+    val logging    = "org.slf4j"            % "slf4j-api"          % "1.7.7"
 
     val pgJodaTime = "com.github.tminglei" %% "slick-pg_joda-time" % "0.6.2"
     val scalatest  = "org.scalatest"       %% "scalatest"          % "2.1.7"

@@ -2,12 +2,14 @@ package no.penger.db
 
 import java.util.Properties
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.tomcat.jdbc.pool.{DataSource, PoolProperties}
+import org.slf4j.LoggerFactory
 
 trait PooledSlickConnectionComponent
-  extends SlickTransactionBoundary
-  with LazyLogging {
+  extends SlickTransactionBoundary {
+
+  val pooledSlickConnectionComponentLogger =
+    LoggerFactory.getLogger("PooledSlickConnectionComponent")
 
   def setupPooledDb(dbUrl: String,
                     username: String,
@@ -46,7 +48,7 @@ trait PooledSlickConnectionComponent
     dbProps.setProperty("dumpQueriesOnException", "true")
     p setDbProperties dbProps
 
-    logger.info("Configured pooled database connection to " + dbUrl)
+    pooledSlickConnectionComponentLogger.info("Configured pooled database connection to " + dbUrl)
 
     val ds = new DataSource(p)
     SlickTransaction(Database.forDataSource(ds))
