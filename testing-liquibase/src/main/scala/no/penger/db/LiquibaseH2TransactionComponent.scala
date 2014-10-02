@@ -15,7 +15,7 @@ private [db] object Cache {
 trait LiquibaseH2TransactionComponent extends H2TransactionComponent {
   import profile.simple._
 
-  val liquibaseH2TransactionComponentLogger = LoggerFactory.getLogger("LiquibaseH2TransactionComponent")
+  val logger = LoggerFactory.getLogger(classOf[LiquibaseH2TransactionComponent])
 
   /* override these if necessary */
   val liquibaseTags      = Seq("test")
@@ -44,7 +44,7 @@ trait LiquibaseH2TransactionComponent extends H2TransactionComponent {
 
     val td = System.currentTimeMillis - t0
 
-    liquibaseH2TransactionComponentLogger.warn(s"created new H2 instance (${dbString(db)}, " +
+    logger.warn(s"created new H2 instance (${dbString(db)}, " +
       s"existedCached: ${Cache.cached.get.isDefined}, " +
       s"isolationRequested: $isolation) with liquibase tags $liquibaseTags in $td ms"
     )
