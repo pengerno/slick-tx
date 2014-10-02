@@ -31,33 +31,24 @@ object Build extends sbt.Build {
       settings     = buildSettings ++ Seq(libraryDependencies ++= deps)
     )
 
-  lazy val transactionsAbstract = project("abstract")()
+  object deps{
+    val slick      = "com.typesafe.slick"  %% "slick"              % "2.1.0"
+    val tomcatJdbc = "org.apache.tomcat"    % "tomcat-jdbc"        % "7.0.39"  //todo: upgrade!
+    val logging     = "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2"
 
-  lazy val transactions = project("core", transactionsAbstract)(
-    "com.typesafe.slick" %% "slick" % "2.1.0"
-  )
+    val pgJodaTime = "com.github.tminglei" %% "slick-pg_joda-time" % "0.6.2"
+    val scalatest  = "org.scalatest"       %% "scalatest"          % "2.1.7"
+    val h2         = "com.h2database"       % "h2"                 % "1.3.175"
+    val liquibase  = "org.liquibase"        % "liquibase-core"     % "3.1.1"
+  }
 
-  lazy val transactionsSetup = project("setup", transactions)(
-    "org.apache.tomcat"           %  "tomcat-jdbc"            % "7.0.39", //todo: upgrade!
-    "com.github.tminglei"         %% "slick-pg_joda-time"     % "0.6.2",
-    typesafeLogging
-  )
-
-  lazy val transactionsTesting = project("testing", transactions)()
-
-  lazy val transactionsTestingH2 = project("testing-h2", transactionsTesting)(
-    "org.scalatest" %% "scalatest"    % "2.1.7",
-    "com.h2database" % "h2"           % "1.3.175"
-  )
-
-  lazy val transactionsTestingLiquibase = project("testing-liquibase", transactionsTestingH2)(
-    typesafeLogging,
-    "org.liquibase" % "liquibase-core" % "3.1.1"
-  )
-
-  val typesafeLogging = "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2"
+  lazy val txAbstract = project("abstract"    )()
+  lazy val txCore     = project("core",       txAbstract)(deps.slick)
+  lazy val txSetup    = project("setup",      txCore)(deps.tomcatJdbc, deps.pgJodaTime, deps.logging)
+  lazy val txTest     = project("testing",    txCore)()
+  lazy val txTestH2   = project("testing-h2", txTest)(deps.scalatest, deps.h2)
+  lazy val txTestH2L  = project("testing-liquibase", txTestH2)(deps.logging, deps.liquibase)
 
   lazy val root = Project(s"$basename-parent", file("."), settings = buildSettings)
-    .aggregate(transactionsAbstract, transactions, transactionsSetup,
-      transactionsTesting, transactionsTestingH2, transactionsTestingLiquibase)
+    .aggregate(txAbstract, txCore, txSetup, txTest, txTestH2, txTestH2L)
 }
