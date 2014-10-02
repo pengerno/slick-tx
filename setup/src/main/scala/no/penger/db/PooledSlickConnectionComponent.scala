@@ -3,12 +3,8 @@ package no.penger.db
 import java.util.Properties
 
 import org.apache.tomcat.jdbc.pool.{DataSource, PoolProperties}
-import org.slf4j.Logger
-
 trait PooledSlickConnectionComponent
   extends SlickTransactionBoundary {
-
-  protected def logger: Logger
 
   def setupPooledDb(dbUrl: String,
                     username: String,
@@ -46,8 +42,6 @@ trait PooledSlickConnectionComponent
     val dbProps = new Properties()
     dbProps.setProperty("dumpQueriesOnException", "true")
     p setDbProperties dbProps
-
-    logger.info("Configured pooled database connection to " + dbUrl)
 
     val ds = new DataSource(p)
     SlickTransaction(Database.forDataSource(ds))

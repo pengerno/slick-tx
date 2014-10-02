@@ -38,10 +38,10 @@ object Build extends sbt.Build {
     val liquibase  = "org.liquibase"        % "liquibase-core"     % "3.1.1"
   }
 
-  lazy val txAbstract = project("abstract"    )
-  lazy val txCore     = project("core",       deps.slick) dependsOn txAbstract
-  lazy val txSetup    = project("setup",      deps.tomcatJdbc, deps.pgJodaTime, deps.logging) dependsOn txCore
-  lazy val txTest     = project("testing"     ) dependsOn txCore
+  lazy val txAbstract = project("abstract")
+  lazy val txCore     = project("core", deps.slick) dependsOn txAbstract
+  lazy val txSetup    = project("setup", deps.tomcatJdbc, deps.pgJodaTime) dependsOn txCore
+  lazy val txTest     = project("testing") dependsOn txCore
   lazy val txTestH2   = project("testing-h2", deps.scalatest, deps.h2) dependsOn txTest
   lazy val txTestH2L  = project("testing-liquibase", deps.logging, deps.liquibase) dependsOn txTestH2
 
