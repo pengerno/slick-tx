@@ -6,13 +6,10 @@ object Build extends sbt.Build {
 
   val basename = "tx"
 
-  override def settings = super.settings ++ Seq(
+  lazy val buildSettings = Defaults.coreDefaultSettings ++ aetherSettings ++ Seq(
     scalacOptions      := Seq("-unchecked", "-deprecation", "-encoding", "UTF-8", "-feature"),
     organization       := "no.penger",
-    scalaVersion       := "2.11.2"
-  )
-
-  lazy val buildSettings = Defaults.coreDefaultSettings ++ aetherSettings ++ Seq(
+    scalaVersion       := "2.11.2",
     crossScalaVersions := Seq("2.10.4", "2.11.2"),
     publishMavenStyle  := true,
     publish <<= deploy,
@@ -23,11 +20,10 @@ object Build extends sbt.Build {
     }
   )
 
-  def project(suffix: String, projectDeps: sbt.ClasspathDep[sbt.ProjectReference]*)(deps: ModuleID*) =
+  def project(suffix: String, deps: ModuleID*) =
     Project(
       id           = s"$basename-$suffix",
       base         = file(s"./$suffix"),
-      dependencies = projectDeps,
       settings     = buildSettings ++ Seq(libraryDependencies ++= deps)
     )
 
@@ -42,12 +38,12 @@ object Build extends sbt.Build {
     val liquibase  = "org.liquibase"        % "liquibase-core"     % "3.1.1"
   }
 
-  lazy val txAbstract = project("abstract"    )()
-  lazy val txCore     = project("core",       txAbstract)(deps.slick)
-  lazy val txSetup    = project("setup",      txCore)(deps.tomcatJdbc, deps.pgJodaTime, deps.logging)
-  lazy val txTest     = project("testing",    txCore)()
-  lazy val txTestH2   = project("testing-h2", txTest)(deps.scalatest, deps.h2)
-  lazy val txTestH2L  = project("testing-liquibase", txTestH2)(deps.logging, deps.liquibase)
+  lazy val txAbstract = project("abstract"    )
+  lazy val txCore     = project("core",       deps.slick) dependsOn txAbstract
+  lazy val txSetup    = project("setup",      deps.tomcatJdbc, deps.pgJodaTime, deps.logging) dependsOn txCore
+  lazy val txTest     = project("testing"     ) dependsOn txCore
+  lazy val txTestH2   = project("testing-h2", deps.scalatest, deps.h2) dependsOn txTest
+  lazy val txTestH2L  = project("testing-liquibase", deps.logging, deps.liquibase) dependsOn txTestH2
 
   lazy val root = Project(s"$basename-parent", file("."), settings = buildSettings)
     .aggregate(txAbstract, txCore, txSetup, txTest, txTestH2, txTestH2L)
