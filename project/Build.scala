@@ -14,7 +14,7 @@ object Build extends sbt.Build {
     Seq(
       scalacOptions       := Seq("-unchecked", "-deprecation", "-encoding", "UTF-8", "-feature"),
       organization        := "no.penger",
-      scalaVersion        := "2.11.4",
+      scalaVersion        := "2.10.4",
       crossScalaVersions  := Seq("2.10.4", "2.11.4"),
       publishMavenStyle   := true,
       publish <<= deploy,
@@ -40,7 +40,7 @@ object Build extends sbt.Build {
     val pgJodaTime = "com.github.tminglei" %% "slick-pg_joda-time" % "0.6.5.3"
     val postgres   = "org.postgresql"       % "postgresql"         % "9.3-1102-jdbc41"
     val scalatest  = "org.scalatest"       %% "scalatest"          % "2.2.2"
-    val h2         = "com.h2database"       % "h2"                 % "1.4.182"
+    val h2         = "com.h2database"       % "h2"                 % "1.4.183"
     val liquibase  = "org.liquibase"        % "liquibase-core"     % "3.1.1"
   }
 

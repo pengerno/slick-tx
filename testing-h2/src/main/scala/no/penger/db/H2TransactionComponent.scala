@@ -7,9 +7,7 @@ trait H2TransactionComponent extends SlickTransactionBoundary {
 
   def db: profile.simple.Database
 
-  override lazy val transaction = {
-    SlickTransaction(db)
-  }
+  override lazy val transaction = SlickTransaction(db)
 
   def withRolledbackTransaction[A](f: Tx[RW] => A) = transaction.readWrite {
     s => try {

@@ -4,6 +4,7 @@ import java.util.UUID
 
 import org.scalatest.FunSuite
 import org.scalactic.TypeCheckedTripleEquals
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 
@@ -133,7 +134,9 @@ abstract class TestUploadServiceComponent extends FunSuite with UploadServiceCom
 class TestUploadServiceDbComponent
   extends TestUploadServiceComponent
   with UploadRepoDbComponent
-  with LiquibaseH2TransactionComponent
+  with LiquibaseH2TransactionComponent{
+  override val log = LoggerFactory.getLogger(classOf[TestUploadServiceDbComponent])
+}
 
 class TestUploadServiceDummyComponent
   extends TestUploadServiceComponent
