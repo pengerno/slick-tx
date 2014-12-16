@@ -84,6 +84,9 @@ trait UploadServiceComponent extends UploadRepoComponent with TransactionBoundar
           Right(id)
       }
 
+    def unregisterInner(id: UploadId, ot: Tx[RW]*): Boolean =
+      transaction.joiningReadWrite(ot)(implicit tx ⇒ uploadRepo unregister id)
+
     def unregister(id: UploadId): Boolean =
       transaction.readWrite(implicit tx => uploadRepo unregister id)
 
