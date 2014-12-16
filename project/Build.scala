@@ -12,13 +12,14 @@ object Build extends sbt.Build {
     net.virtualvoid.sbt.graph.Plugin.graphSettings ++
     releaseSettings ++
     Seq(
-      scalacOptions       := Seq("-unchecked", "-deprecation", "-encoding", "UTF-8", "-feature"),
-      organization        := "no.penger",
-      scalaVersion        := "2.10.4",
-      crossScalaVersions  := Seq("2.10.4", "2.11.4"),
-      publishMavenStyle   := true,
-      publish <<= deploy,
-      publishTo <<= version { v =>
+      scalacOptions            := Seq("-unchecked", "-deprecation", "-encoding", "UTF-8", "-feature"),
+      organization             := "no.penger",
+      scalaVersion             := "2.10.4",
+      crossScalaVersions       := Seq("2.10.4", "2.11.4"),
+      ReleaseKeys.crossBuild   := true,
+      publishMavenStyle        := true,
+      publish                 <<= deploy,
+      publishTo               <<= version { v =>
         val proxy = "http://mavenproxy.finntech.no/finntech-internal-"
         val end = if(v endsWith "SNAPSHOT") "snapshot" else "release"
         Some("Finn-" + end at proxy + end)
