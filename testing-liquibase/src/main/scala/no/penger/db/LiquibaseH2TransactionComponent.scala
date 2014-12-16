@@ -37,7 +37,7 @@ trait LiquibaseH2TransactionComponent extends H2TransactionComponent {
     )
 
     Cache.LiquibaseLock.synchronized{
-      db.withTransaction { tx: Tx =>
+      db.withTransaction { tx: Tx[RW] =>
         Schema.update(tx.conn, liquibaseChangelog, liquibaseTags)
       }
     }

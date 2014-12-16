@@ -7,7 +7,7 @@ trait SlickTransactionAware
   extends TransactionAware {
   self: SlickProfile =>
 
-  final override type Tx = self.profile.simple.Session
+  final override type Tx[+T] = self.profile.simple.Session
 }
 
 

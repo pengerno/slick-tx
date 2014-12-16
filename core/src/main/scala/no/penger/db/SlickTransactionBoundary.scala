@@ -8,10 +8,10 @@ trait SlickTransactionBoundary
   with SlickTransactionAware
   with SlickProfile {
 
-  def transaction: SlickTransaction
+  override def transaction: SlickTransaction
 
   case class SlickTransaction(database: profile.simple.Database) extends Transaction {
-    def readOnly[A](f: Tx => A): A  = database.withSession((s: Tx) => f(s))
-    def readWrite[A](f: Tx => A): A = database.withTransaction((s: Tx) => f(s))
+    override def readOnly[A](f: Tx[RO] => A): A  = database.withSession((s: Tx[RO]) => f(s))
+    override def readWrite[A](f: Tx[RW] => A): A = database.withTransaction((s: Tx[RW]) => f(s))
   }
 }

@@ -3,7 +3,7 @@ package no.penger.db
 import java.util.UUID
 
 import org.scalatest.FunSuite
-import org.scalautils.TypeCheckedTripleEquals
+import org.scalactic.TypeCheckedTripleEquals
 
 import scala.collection.mutable
 
@@ -14,9 +14,9 @@ trait UploadRepoComponent extends TransactionAware {
   def uploadRepo: UploadRepo
 
   trait UploadRepo {
-    def register(upload: Upload)(implicit tx: Tx): Unit
-    def unregister(id: UploadId)(implicit tx: Tx): Boolean
-    def lookup(id: UploadId)(implicit tx: Tx): Option[Upload]
+    def register(upload: Upload)(implicit tx: Tx[RW]): Unit
+    def unregister(id: UploadId)(implicit tx: Tx[RW]): Boolean
+    def lookup(id: UploadId)(implicit tx: Tx[RO]): Option[Upload]
   }
 }
 
@@ -25,13 +25,13 @@ trait UploadRepoDummyComponent extends UploadRepoComponent with DummyTransaction
   object uploadRepo extends UploadRepo{
     val uploads = mutable.Map[UploadId, Upload]()
 
-    override def register(upload: Upload)(implicit tx: Tx) =
+    override def register(upload: Upload)(implicit tx: Tx[RW]) =
       uploads(upload.id) = upload
 
-    override def lookup(id: UploadId)(implicit tx: Tx) =
+    override def lookup(id: UploadId)(implicit tx: Tx[RO]) =
       uploads.get(id)
 
-    override def unregister(id: UploadId)(implicit tx: Tx) =
+    override def unregister(id: UploadId)(implicit tx: Tx[RW]) =
       uploads.remove(id).isDefined
   }
 }
@@ -53,13 +53,13 @@ trait UploadRepoDbComponent extends UploadRepoComponent with SlickTransactionAwa
     }
     val Uploads = TableQuery[UploadT]
 
-    override def register(upload: Upload)(implicit tx: Tx) =
+    override def register(upload: Upload)(implicit tx: Tx[RW]) =
       Uploads.insert(upload)
 
-    override def lookup(id: UploadId)(implicit tx: Tx) =
+    override def lookup(id: UploadId)(implicit tx: Tx[RO]) =
       Uploads.filter(_.id === id).firstOption
 
-    override def unregister(id: UploadId)(implicit tx: Tx) =
+    override def unregister(id: UploadId)(implicit tx: Tx[RW]) =
       Uploads.filter(_.id === id).delete > 0
   }
 }
