@@ -6,7 +6,7 @@ trait DummyTransactionBoundary
 
   override def transaction: Transaction =
     new Transaction {
-      override def readOnly[A](f: Tx => A): A = f(DummyTransaction)
-      override def readWrite[A](f: Tx => A): A = f(DummyTransaction)
+      override def readOnly[A](f: Tx[RO] => A): A = f(DummyTransaction)
+      override def readWrite[A](f: Tx[RW] => A): A = f(DummyTransaction)
     }
 }

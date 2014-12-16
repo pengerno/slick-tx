@@ -11,7 +11,7 @@ trait H2TransactionComponent extends SlickTransactionBoundary {
     SlickTransaction(db)
   }
 
-  def withRolledbackTransaction[A](f: Tx => A) = transaction.readWrite {
+  def withRolledbackTransaction[A](f: Tx[RW] => A) = transaction.readWrite {
     s => try {
       f(s)
     } finally s.rollback()

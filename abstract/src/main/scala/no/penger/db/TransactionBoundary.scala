@@ -8,7 +8,7 @@ trait TransactionBoundary
   def transaction: Transaction
 
   trait Transaction {
-    def readOnly[A](f: Tx => A): A
-    def readWrite[A](f: Tx => A): A
+    def readOnly[A](f: Tx[RO] => A): A
+    def readWrite[A](f: Tx[RW] => A): A
   }
 }
