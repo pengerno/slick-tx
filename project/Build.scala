@@ -41,7 +41,7 @@ object Build extends sbt.Build {
     val pgJodaTime = "com.github.tminglei" %% "slick-pg_joda-time" % "0.6.5.3"
     val postgres   = "org.postgresql"       % "postgresql"         % "9.3-1102-jdbc41"
     val scalatest  = "org.scalatest"       %% "scalatest"          % "2.2.2"
-    val h2         = "com.h2database"       % "h2"                 % "1.4.183"
+    val h2         = "com.h2database"       % "h2"                 % "1.4.187"
     val liquibase  = "org.liquibase"        % "liquibase-core"     % "3.1.1"
   }
 
